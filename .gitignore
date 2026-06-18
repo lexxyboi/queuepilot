@@ -1,0 +1,10 @@
+# Dependencies
+node_modules/
+
+# Neutralino template binaries and temporary files
+bin/
+.tmp/
+
+# Protected Web Builds
+build-web/
+dist/queuepilot/

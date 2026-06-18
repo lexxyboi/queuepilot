@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Queuepilot</title>
+  <meta name="description" content="A premium, lightweight, real-time pickleball court and lobby queueing assistant.">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+  <!-- Top Navigation Header -->
+  <header id="app-header">
+    <div class="logo-container">
+      <div class="logo-icon">Q</div>
+      <h1 class="logo-text">Queue<span>pilot</span></h1>
+    </div>
+
+    <div class="nav-controls">
+      <div class="automation-toggle-container" id="automation-toggle-container">
+        <label class="automation-switch" for="toggle-automation">
+          <input type="checkbox" id="toggle-automation">
+          <span class="automation-slider"></span>
+        </label>
+        <span class="automation-label" id="automation-status-label">Auto: OFF</span>
+      </div>
+      <button id="btn-open-standalone" class="btn-secondary">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6M15 3h6v6M10 14L21 3" />
+        </svg>
+        Open Board Window
+      </button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main id="main-content">
+
+    <!-- ==================== ADMIN VIEW ==================== -->
+    <section id="view-admin" class="admin-grid" style="display: grid;">
+
+      <!-- Panel 1: Check-in & Checked-in Queue -->
+      <article class="panel" id="panel-players">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              style="color: var(--accent);">
+              <path
+                d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+            Player Controls
+          </h2>
+          <span class="panel-count" id="queue-count">0 Players</span>
+        </div>
+
+        <div class="panel-tabs">
+          <button class="tab-btn active" data-tab="checkin">Check-in</button>
+          <button class="tab-btn" data-tab="view">View</button>
+          <button class="tab-btn" data-tab="edit">Edit</button>
+        </div>
+
+        <!-- Player Check-in Form -->
+        <div id="tab-checkin" class="tab-content active">
+          <form id="form-checkin" class="checkin-form">
+            <div class="form-group">
+              <label for="player-name-input" class="form-label">Player Name</label>
+              <input type="text" id="player-name-input" class="form-input" placeholder="Enter name..." required
+                autocomplete="off">
+            </div>
+            <div class="form-group">
+              <span class="form-label">Skill Level</span>
+              <div class="skill-selector">
+                <input type="radio" id="skill-beginner" name="skill-level" value="Beginner" checked class="skill-radio">
+                <label for="skill-beginner" class="skill-label skill-beginner">Beginner</label>
+
+                <input type="radio" id="skill-novice" name="skill-level" value="Novice" class="skill-radio">
+                <label for="skill-novice" class="skill-label skill-novice">Novice</label>
+
+                <input type="radio" id="skill-intermediate" name="skill-level" value="Intermediate" class="skill-radio">
+                <label for="skill-intermediate" class="skill-label skill-intermediate">Intermediate</label>
+
+                <input type="radio" id="skill-advanced" name="skill-level" value="Advanced" class="skill-radio">
+                <label for="skill-advanced" class="skill-label skill-advanced">Advanced</label>
+              </div>
+            </div>
+            <button type="submit" id="btn-submit-checkin" class="btn-primary">
+              Check-In Player
+            </button>
+          </form>
+        </div>
+
+        <!-- Queue list container (View Tab) -->
+        <div id="tab-view" class="tab-content" style="position: relative;">
+          <div class="scrollable-list" id="queue-list-container">
+            <!-- Populated by JS -->
+            <div class="empty-placeholder">
+              <span class="empty-placeholder-icon">🎾</span>
+              <p class="empty-placeholder-text">No players checked in yet.</p>
+            </div>
+          </div>
+          <div id="linking-actions-bar" class="linking-actions-bar" style="display: none;"></div>
+        </div>
+
+        <!-- All Players List (Edit Tab) -->
+        <div id="tab-edit" class="tab-content">
+          <div class="scrollable-list" id="all-players-list-container"
+            style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; background: rgba(0,0,0,0.2);">
+            <!-- Populated dynamically with all checked in players -->
+          </div>
+        </div>
+      </article>
+
+      <!-- Panel 2: Waiting Lobbies -->
+      <article class="panel" id="panel-lobbies">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              style="color: var(--accent);">
+              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+            </svg>
+            Waiting Lobbies
+          </h2>
+          <span class="panel-count" id="lobby-count">0 Lobbies</span>
+        </div>
+
+        <!-- Lobbies dynamic container -->
+        <div class="lobbies-container" id="lobbies-list-container">
+          <!-- Populated by JS -->
+        </div>
+      </article>
+
+      <!-- Panel 3: Active Courts -->
+      <article class="panel" id="panel-courts">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              style="color: var(--accent);">
+              <path d="M3 3h18v18H3zM3 9h18M3 15h18M9 3v18M15 3v18" />
+            </svg>
+            Active Courts
+          </h2>
+          <span class="panel-count" id="court-count">0 Courts</span>
+        </div>
+
+        <!-- Active courts container -->
+        <div class="courts-container" id="courts-list-container">
+          <!-- Populated by JS -->
+        </div>
+
+        <div class="config-actions-bar">
+          <button id="btn-add-court" class="btn-config">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M12 5v14M5 12h14" />
+            </svg>
+            Add Court
+          </button>
+          <button id="btn-remove-court" class="btn-config danger">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path d="M5 12h14" />
+            </svg>
+            Remove Court
+          </button>
+        </div>
+      </article>
+
+    </section>
+
+    <!-- ==================== ADMIN BOTTOM ROW (Analytics & Automation) ==================== -->
+    <section id="admin-bottom-row" class="admin-bottom-row">
+      <div class="panel" id="panel-analytics">
+        <div class="queue-analytics-section" id="queue-analytics-container">
+          <!-- Populated dynamically by JS -->
+        </div>
+      </div>
+      <div class="panel" id="panel-automation-log">
+        <div class="automation-log-section" id="automation-log-container" style="display: none;">
+          <!-- Populated dynamically by JS: recent automation actions -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== LIVEBOARD VIEW ==================== -->
+    <section id="view-liveboard" class="liveboard-container">
+
+      <!-- Left side: Courts Display -->
+      <div class="live-courts-panel">
+        <h2 class="panel-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">
+          <span style="color: var(--accent); margin-right: 0.5rem;">●</span> Active Matches
+        </h2>
+        <div class="live-courts-grid fade-transition" id="live-courts-grid-container">
+          <!-- Populated by JS -->
+        </div>
+        <div class="pagination-dots" id="live-courts-dots"></div>
+      </div>
+
+      <!-- Right side: Next Up Lobbies & Queue list -->
+      <div class="liveboard-side-panel fade-transition" id="liveboard-side-panel">
+
+        <!-- Next Lobbies View -->
+        <div class="live-lobby-section" id="live-lobbies-view">
+          <h2 class="panel-title" style="font-size: 1.25rem;">
+            <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"
+              style="color: var(--accent); margin-right: 0.25rem;">
+              <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Next Up
+          </h2>
+          <div class="live-lobby-grid" id="live-lobby-grid-container">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+
+        <!-- Queue Status View -->
+        <div class="panel" id="live-queue-view" style="flex: 1; padding: 1.25rem; margin-bottom: 0; display: none;">
+          <div class="panel-header" style="margin-bottom: 0.75rem; padding-bottom: 0.5rem;">
+            <h3 class="panel-title" style="font-size: 1.1rem;">Waiting List</h3>
+            <span class="panel-count" id="live-queue-count" style="font-size: 0.7rem;">0 Players</span>
+          </div>
+          <div class="live-queue-list fade-transition" id="live-queue-list-container">
+            <!-- Populated by JS -->
+          </div>
+          <div class="pagination-dots" id="live-queue-dots"></div>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- Modal 1: Edit Checked-in Player -->
+  <div class="modal-overlay" id="modal-edit-player">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Player Details</h3>
+        <button class="action-btn" id="btn-close-edit-modal" aria-label="Close dialog">×</button>
+      </div>
+      <form id="form-edit-player">
+        <input type="hidden" id="edit-player-id">
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label for="edit-player-name" class="form-label">Player Name</label>
+          <input type="text" id="edit-player-name" class="form-input" required autocomplete="off">
+        </div>
+        <div class="form-group">
+          <span class="form-label">Skill Level</span>
+          <div class="skill-selector">
+            <input type="radio" id="edit-skill-beginner" name="edit-skill-level" value="Beginner" class="skill-radio">
+            <label for="edit-skill-beginner" class="skill-label skill-beginner">Beginner</label>
+
+            <input type="radio" id="edit-skill-novice" name="edit-skill-level" value="Novice" class="skill-radio">
+            <label for="edit-skill-novice" class="skill-label skill-novice">Novice</label>
+
+            <input type="radio" id="edit-skill-intermediate" name="edit-skill-level" value="Intermediate"
+              class="skill-radio">
+            <label for="edit-skill-intermediate" class="skill-label skill-intermediate">Intermediate</label>
+
+            <input type="radio" id="edit-skill-advanced" name="edit-skill-level" value="Advanced" class="skill-radio">
+            <label for="edit-skill-advanced" class="skill-label skill-advanced">Advanced</label>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btn-cancel-edit-player">Cancel</button>
+          <button type="submit" class="btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal 2: Assign Player to Court Slot / Lobby Slot -->
+  <div class="modal-overlay" id="modal-assign-slot">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title" id="assign-modal-title">Assign Slot</h3>
+        <button class="action-btn" id="btn-close-assign-modal" aria-label="Close dialog">×</button>
+      </div>
+      <div class="form-group" style="margin-bottom: 1rem;">
+        <label for="assign-player-search" class="form-label">Search / Select Player</label>
+        <input type="text" id="assign-player-search" class="form-input"
+          placeholder="Type to search checked-in players..." autocomplete="off">
+      </div>
+      <div class="scrollable-list" id="assign-players-list"
+        style="max-height: 200px; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.5rem; background: rgba(0,0,0,0.2);">
+        <!-- Populated dynamically with available queue players + guest option -->
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary btn-config danger" id="btn-clear-slot"
+          style="margin-right: auto; color: var(--color-advanced); border-color: rgba(244, 63, 94, 0.2);">Clear
+          Slot</button>
+        <button type="button" class="btn-secondary" id="btn-cancel-assign">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <!-- Script Import -->
+  <script src="app.js"></script>
+</body>
+
+</html>

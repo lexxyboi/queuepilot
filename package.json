@@ -1,0 +1,15 @@
+{
+  "name": "queuepilot",
+  "version": "2.0.0",
+  "description": "Pickleball Queueing System",
+  "main": "app.js",
+  "scripts": {
+    "start": "neu run",
+    "build": "neu build",
+    "build:web": "node build-web.js"
+  },
+  "devDependencies": {
+    "@neutralinojs/neu": "latest",
+    "javascript-obfuscator": "^5.4.3"
+  }
+}
